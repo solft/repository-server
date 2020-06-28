@@ -3,6 +3,7 @@ package com.hansol.repositoryserver.service;
 import com.hansol.repositoryserver.exception.FileStorageException;
 import com.hansol.repositoryserver.exception.MyFileNotFoundException;
 import com.hansol.repositoryserver.property.FileStorageProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+@Slf4j
 @Service
 public class FileStorageService {
 
@@ -24,6 +26,7 @@ public class FileStorageService {
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
+        log.info("fileStorageProperties.getUploadDir==> {}", fileStorageProperties.getUploadDir());
         this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
                 .toAbsolutePath().normalize();
 
@@ -36,6 +39,7 @@ public class FileStorageService {
 
     public String storeFile(MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        log.info("fileName==> {}", fileName);
 
         try {
             if(fileName.contains("..")) {
@@ -43,6 +47,7 @@ public class FileStorageService {
             }
 
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            log.info("targetLocation==> {}", targetLocation.toString());
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             return fileName;
